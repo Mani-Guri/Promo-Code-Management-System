@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promo Code Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            max-width: 100%;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e1e4e8;
+            flex-shrink: 0;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr 400px;
+            gap: 20px;
+            height: calc(100vh - 120px);
+            overflow: hidden;
+        }
+        
+        .workflow, .dashboard, .discussion-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            height: 100%;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            flex: 1;
+            font-size: 13px;
+        }
+        
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: #f8f9fa;
+        }
+        
+        .panel {
+            display: none;
+        }
+        
+        .panel.active {
+            display: block;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eaecef;
+            font-size: 16px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+            font-size: 12px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: #e1e4e8;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #d1d5da;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 5px;
+            padding: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            border-left: 3px solid #3498db;
+        }
+        
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        
+        .card p {
+            color: #666;
+            margin-bottom: 3px;
+            font-size: 11px;
+        }
+        
+        .status-active {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .status-inactive {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .service-badge {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: 8px;
+            font-size: 10px;
+            margin-right: 3px;
+            margin-bottom: 3px;
+        }
+        
+        .service-dmt {
+            background-color: #e8f6f3;
+            color: #1abc9c;
+        }
+        
+        .service-aeps {
+            background-color: #fef9e7;
+            color: #f39c12;
+        }
+        
+        .service-bbps {
+            background-color: #ebf5fb;
+            color: #3498db;
+        }
+        
+        .service-recharge {
+            background-color: #f4ecf7;
+            color: #9b59b6;
+        }
+        
+        .service-travel {
+            background-color: #eafaf1;
+            color: #2ecc71;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 5px;
+            padding: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #3498db;
+            margin: 4px 0;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 11px;
+        }
+        
+        /* Workflow Styles */
+        .flow-container {
+            margin-top: 10px;
+        }
+        
+        .flow-step {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+        
+        .step-number {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background-color: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+            flex-shrink: 0;
+            font-size: 11px;
+        }
+        
+        .step-content {
+            flex: 1;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 3px solid #3498db;
+            font-size: 12px;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #2c3e50;
+            font-size: 12px;
+        }
+        
+        .step-description {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.3;
+        }
+        
+        .flow-arrow {
+            text-align: center;
+            margin: 6px 0;
+            color: #3498db;
+            font-size: 12px;
+        }
+        
+        .flow-highlight {
+            background-color: #e1f5fe;
+            border-left-color: #0288d1;
+        }
+        
+        .entity-box {
+            background: #e3f2fd;
+            border-radius: 4px;
+            padding: 6px;
+            margin: 6px 0;
+            border-left: 2px solid #1565c0;
+            font-size: 11px;
+        }
+        
+        .entity-title {
+            font-weight: 600;
+            color: #1565c0;
+            margin-bottom: 3px;
+            font-size: 11px;
+        }
+        
+        /* Discussion Panel Styles */
+        .discussion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .discussion-point {
+            background: #fff9e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #ff9800;
+        }
+        
+        .point-number {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #ff9800;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-weight: bold;
+            margin-right: 6px;
+            font-size: 10px;
+        }
+        
+        .point-title {
+            font-weight: 600;
+            color: #e65100;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .point-description {
+            color: #666;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+        
+        .suggestion-box {
+            background: #e8f5e9;
+            padding: 6px;
+            border-radius: 3px;
+            margin-top: 5px;
+            border-left: 2px solid #4caf50;
+            font-size: 11px;
+        }
+        
+        .suggestion-title {
+            font-weight: 600;
+            color: #2e7d32;
+            margin-bottom: 3px;
+            font-size: 11px;
+        }
+        
+        .priority-high {
+            border-left-color: #f44336;
+        }
+        
+        .priority-medium {
+            border-left-color: #ff9800;
+        }
+        
+        .priority-low {
+            border-left-color: #4caf50;
+        }
+        
+        .discussion-section {
+            margin-bottom: 15px;
+        }
+        
+        .section-title {
+            font-size: 13px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #eaecef;
+        }
+        
+        /* Compact form adjustments */
+        .compact-form .form-group {
+            margin-bottom: 8px;
+        }
+        
+        .compact-form label {
+            margin-bottom: 3px;
+        }
+        
+        .compact-form input, 
+        .compact-form select, 
+        .compact-form textarea {
+            padding: 6px 8px;
+        }
+        
+        /* Hide scrollbars but keep functionality */
+        .workflow::-webkit-scrollbar,
+        .dashboard::-webkit-scrollbar,
+        .discussion-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .workflow::-webkit-scrollbar-track,
+        .dashboard::-webkit-scrollbar-track,
+        .discussion-panel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 2px;
+        }
+        
+        .workflow::-webkit-scrollbar-thumb,
+        .dashboard::-webkit-scrollbar-thumb,
+        .discussion-panel::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 2px;
+        }
+        
+        .workflow::-webkit-scrollbar-thumb:hover,
+        .dashboard::-webkit-scrollbar-thumb:hover,
+        .discussion-panel::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">PromoCode Manager</div>
+            <div class="user-info">
+                <div class="avatar">AD</div>
+                <span>Admin User</span>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <!-- Left Panel: Workflow -->
+            <div class="workflow">
+                <h2>System Workflow</h2>
+                <div class="flow-container">
+                    <div class="flow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content flow-highlight">
+                            <div class="step-title">Admin Creates Promo Code</div>
+                            <div class="step-description">
+                                Admin logs in and fills the promo code form with all parameters.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow">↓</div>
+                    
+                    <div class="flow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">System Validation</div>
+                            <div class="step-description">
+                                System validates all rules and saves the promo code to database.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow">↓</div>
+                    
+                    <div class="flow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">B2B Flow</div>
+                            <div class="step-description">
+                                Promo code becomes available to selected retailers and their customers.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow">↓</div>
+                    
+                    <div class="flow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-title">D2C Flow</div>
+                            <div class="step-description">
+                                Customer applies promo code at checkout in E-commerce/Utility app.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow">↓</div>
+                    
+                    <div class="flow-step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <div class="step-title">Real-time Validation</div>
+                            <div class="step-description">
+                                System checks validity, limits, service type, and user eligibility.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow">↓</div>
+                    
+                    <div class="flow-step">
+                        <div class="step-number">6</div>
+                        <div class="step-content">
+                            <div class="step-title">Transaction Completion</div>
+                            <div class="step-description">
+                                Discount applied, transaction recorded, and usage counters updated.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 10px; background: #e8f5e9; border-radius: 5px; border-left: 3px solid #4caf50;">
+                    <h3 style="color: #2e7d32; margin-bottom: 6px; font-size: 13px;">Key System Entities</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px;">
+                        <div style="padding: 6px; background: #f1f8e9; border-radius: 3px;">
+                            <strong>B2B Entities:</strong><br>
+                            • Admin Users<br>
+                            • Retailers<br>
+                            • Retailer Customers
+                        </div>
+                        <div style="padding: 6px; background: #e3f2fd; border-radius: 3px;">
+                            <strong>D2C Entities:</strong><br>
+                            • Direct Customers<br>
+                            • E-commerce Platform<br>
+                            • Utility Services
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 10px; background: #fff3e0; border-radius: 5px; border-left: 3px solid #ff9800;">
+                    <h3 style="color: #e65100; margin-bottom: 6px; font-size: 13px;">Promo Code Parameters</h3>
+                    <div style="font-size: 11px; line-height: 1.4;">
+                        <strong>Core Parameters:</strong><br>
+                        • User Code (Retailer Selection)<br>
+                        • Promo Name & Code<br>
+                        • Discount Type & Value<br>
+                        • Min/Max Amount & Usage Limits<br>
+                        <strong>Scope Parameters:</strong><br>
+                        • Application Type & Mode<br>
+                        • Service Type<br>
+                        • Validity Dates & Status
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Panel: PromoCode Manager -->
+            <div class="dashboard">
+                <div class="tabs">
+                    <div class="tab active" data-tab="b2b">B2B Promo Management</div>
+                    <div class="tab" data-tab="d2c">D2C Promo Management</div>
+                    <div class="tab" data-tab="active">Active Promotions</div>
+                </div>
+                
+                <div class="panel active compact-form" id="b2b-panel">
+                    <h2>Create B2B Promo Code</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="user-code">User Code</label>
+                            <select id="user-code">
+                                <option value="">Select Retailer</option>
+                                <option value="all">All Retailers</option>
+                                <option value="retailer1">Retailer 1</option>
+                                <option value="retailer2">Retailer 2</option>
+                                <option value="retailer3">Retailer 3</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="promo-name">Promo Name</label>
+                            <input type="text" id="promo-name" placeholder="Enter promotion name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="promo-code">Promo Code</label>
+                            <input type="text" id="promo-code" placeholder="Enter promotion code">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="discount-type">Discount Type</label>
+                            <select id="discount-type">
+                                <option value="flat">Flat</option>
+                                <option value="percentage">Percentage</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="discount-value">Discount Value</label>
+                            <input type="number" id="discount-value" placeholder="Enter discount value">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="min-amount">Min Transaction Amount</label>
+                            <input type="number" id="min-amount" placeholder="Enter minimum amount">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="max-discount">Max Discount Value</label>
+                            <input type="number" id="max-discount" placeholder="Enter maximum discount">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="usage-limit">Usage Limit Per User</label>
+                            <input type="number" id="usage-limit" placeholder="Enter usage limit per user">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="total-usage">Total Usage Limit</label>
+                            <input type="number" id="total-usage" placeholder="Enter total usage limit">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="app-type">Application Type</label>
+                            <select id="app-type">
+                                <option value="web">Web Application</option>
+                                <option value="mobile">Mobile Application</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="app-mode">Application Mode</label>
+                            <select id="app-mode">
+                                <option value="b2b">B2B</option>
+                                <option value="d2c">D2C</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="service-type">Service Type</label>
+                            <select id="service-type">
+                                <option value="dmt">DMT</option>
+                                <option value="aeps">AEPS</option>
+                                <option value="bbps">BBPS</option>
+                                <option value="recharge">Recharge</option>
+                                <option value="travel">Travel</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="start-date">Start Date</label>
+                            <input type="datetime-local" id="start-date">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="end-date">End Date</label>
+                            <input type="datetime-local" id="end-date">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="description">Description</label>
+                            <textarea id="description" rows="2" placeholder="Enter promotion description"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn-secondary">Cancel</button>
+                        <button class="btn-primary">Generate Promo Code</button>
+                    </div>
+                </div>
+                
+                <div class="panel" id="d2c-panel">
+                    <h2>D2C Promo Code Overview</h2>
+                    
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-label">Active Promotions</div>
+                            <div class="stat-value">12</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Usage</div>
+                            <div class="stat-value">3,458</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Avg. Discount</div>
+                            <div class="stat-value">₹48</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Expiring Soon</div>
+                            <div class="stat-value">3</div>
+                        </div>
+                    </div>
+                    
+                    <h3>Recent D2C Promotions</h3>
+                    <div class="cards">
+                        <div class="card">
+                            <h3>SUMMER25</h3>
+                            <p><strong>Promo Name:</strong> Summer Sale</p>
+                            <p><strong>Discount:</strong> 25% (Max ₹200)</p>
+                            <p><strong>Min. Amount:</strong> ₹500</p>
+                            <p><strong>Services:</strong> 
+                                <span class="service-badge service-recharge">Recharge</span>
+                                <span class="service-badge service-travel">Travel</span>
+                            </p>
+                            <p><strong>Status:</strong> <span class="status-active">Active</span></p>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>MONSOON50</h3>
+                            <p><strong>Promo Name:</strong> Monsoon Special</p>
+                            <p><strong>Discount:</strong> Flat ₹50</p>
+                            <p><strong>Min. Amount:</strong> ₹200</p>
+                            <p><strong>Services:</strong> 
+                                <span class="service-badge service-bbps">BBPS</span>
+                            </p>
+                            <p><strong>Status:</strong> <span class="status-active">Active</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel" id="active-panel">
+                    <h2>All Active Promotions</h2>
+                    
+                    <div class="cards">
+                        <div class="card">
+                            <h3>WELCOME10</h3>
+                            <p><strong>Promo Name:</strong> Welcome Offer</p>
+                            <p><strong>Application Mode:</strong> D2C</p>
+                            <p><strong>Discount:</strong> 10% (Max ₹100)</p>
+                            <p><strong>Min. Amount:</strong> ₹300</p>
+                            <p><strong>Services:</strong> 
+                                <span class="service-badge service-recharge">Recharge</span>
+                                <span class="service-badge service-bbps">BBPS</span>
+                            </p>
+                            <p><strong>Status:</strong> <span class="status-active">Active</span></p>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>RETAILER50</h3>
+                            <p><strong>Promo Name:</strong> Retailer Bonus</p>
+                            <p><strong>Application Mode:</strong> B2B</p>
+                            <p><strong>Discount:</strong> Flat ₹50</p>
+                            <p><strong>Min. Amount:</strong> ₹1000</p>
+                            <p><strong>Services:</strong> 
+                                <span class="service-badge service-dmt">DMT</span>
+                                <span class="service-badge service-aeps">AEPS</span>
+                            </p>
+                            <p><strong>Status:</strong> <span class="status-active">Active</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Discussion Points -->
+            <div class="discussion-panel">
+                <div class="discussion-header">
+                    <h2>Points to Discuss</h2>
+                    <span style="color: #666; font-size: 11px;">Open Issues & Decisions Needed</span>
+                </div>
+                
+                <div class="discussion-section">
+                    <div class="section-title">Architecture & Flow Issues</div>
+                    
+                    <div class="discussion-point priority-high">
+                        <div class="point-title">
+                            <span class="point-number">1</span>
+                            Application Mode Selection Conflict
+                        </div>
+                        <div class="point-description">
+                            <strong>Problem:</strong> We don't have retailers on the D2C panel, making "Application Mode" selection confusing.
+                            <div class="suggestion-box">
+                                <div class="suggestion-title">Suggested Solution:</div>
+                                Use separate modules: "B2B Promo Management" and "D2C Promo Management" for promo creation instead of Application Mode dropdown.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="discussion-point priority-high">
+                        <div class="point-title">
+                            <span class="point-number">2</span>
+                            Cashback Implementation Strategy
+                        </div>
+                        <div class="point-description">
+                            <strong>Scenario:</strong> For a ₹100 recharge with 10% cashback - first deduct ₹100, then credit ₹10 after successful transaction.
+                            <div class="suggestion-box">
+                                <div class="suggestion-title">Current Status & Questions:</div>
+                                • B2B: Has wallet system - cashback works<br>
+                                • D2C: No wallet system (customers use Payment Gateway)<br>
+                                • <strong>Question:</strong> Implement wallet for D2C or use loyalty points?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="discussion-section">
+                    <div class="section-title">User Targeting & Eligibility</div>
+                    
+                    <div class="discussion-point priority-medium">
+                        <div class="point-title">
+                            <span class="point-number">3</span>
+                            User Eligibility Criteria
+                        </div>
+                        <div class="point-description">
+                            <strong>Requirement:</strong> Promo applicable to new users (first time use) or users who return after specific days.
+                            <div class="suggestion-box">
+                                <div class="suggestion-title">Required Fields & Logic:</div>
+                                • <strong>User Type:</strong> New User / Existing User / All Users<br>
+                                • <strong>First Time Use:</strong> Boolean flag for new users only<br>
+                                • <strong>Days Since Last Transaction:</strong> Number field for returning users<br>
+                                • <strong>User Segment:</strong> Premium/Regular/All segments
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="discussion-point priority-medium">
+                        <div class="point-title">
+                            <span class="point-number">4</span>
+                            Regional Promotions (Geo-specific Offers)
+                        </div>
+                        <div class="point-description">
+                            <strong>Example:</strong> Vaisakhi festival celebrated mainly in Punjab and Haryana.
+                            <div class="suggestion-box">
+                                <div class="suggestion-title">Implementation Requirements:</div>
+                                • Add region/state selection in promo creation<br>
+                                • Integrate with user location detection<br>
+                                • Support inclusion/exclusion of regions
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="discussion-section">
+                    <div class="section-title">Technical Implementation</div>
+                    
+                    <div class="discussion-point priority-medium">
+                        <div class="point-title">
+                            <span class="point-number">5</span>
+                            Promo Code Conflict Resolution
+                        </div>
+                        <div class="point-description">
+                            <strong>Issue:</strong> How to handle multiple applicable promo codes for a single transaction?
+                            <div class="suggestion-box">
+                                <div class="suggestion-title">Proposed Solution:</div>
+                                • Implement priority levels for promo codes<br>
+                                • Allow only one promo per transaction<br>
+                                • Auto-select best offer for customer
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="discussion-point priority-medium">
+                        <div class="point-title">
+                            <span class="point-number">6</span>
+                            Real-time Usage Tracking & Limits
+                        </div>
+                        <div class="point-description">
+                            <strong>Challenge:</strong> Ensuring accurate real-time tracking of usage limits.
+                            <div class="suggestion-box">
+                                <div class="suggestion-title">Technical Considerations:</div>
+                                • Redis-based counters for real-time tracking<br>
+                                • Database fallback for consistency<br>
+                                • Rate limiting to prevent abuse
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="discussion-point priority-low">
+                        <div class="point-title">
+                            <span class="point-number">7</span>
+                            Promo Code Analytics & Reporting
+                        </div>
+                        <div class="point-description">
+                            Need comprehensive analytics to measure promo code effectiveness.
+                            <div class="suggestion-box">
+                                <div class="suggestion-title">Required Metrics:</div>
+                                • Redemption rates by channel<br>
+                                • Customer acquisition cost<br>
+                                • Revenue impact analysis<br>
+                                • Regional performance breakdown
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            const panels = document.querySelectorAll('.panel');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and panels
+                    tabs.forEach(t => t.classList.remove('active'));
+                    panels.forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Show corresponding panel
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-panel`).classList.add('active');
+                });
+            });
+            
+            // Add form submission example
+            document.querySelector('.btn-primary').addEventListener('click', function() {
+                alert('Promo code created successfully! The workflow will now process this promotion.');
+            });
+        });
+    </script>
+</body>
+</html>
